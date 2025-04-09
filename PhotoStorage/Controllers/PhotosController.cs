@@ -66,13 +66,7 @@ public class PhotosController : Controller
                 return View(model);
             }
             
-            // Check file size (limit to 100MB for videos, 10MB for images)
-            long maxSize = isVideo ? 104857600 : 10485760;
-            if (model.MediaFile.Length > maxSize)
-            {
-                ModelState.AddModelError("MediaFile", $"File size exceeds the limit ({(isVideo ? "100MB" : "10MB")})");
-                return View(model);
-            }
+            
             
             // Create uploads directory if it doesn't exist
             var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");

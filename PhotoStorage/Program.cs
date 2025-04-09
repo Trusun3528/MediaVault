@@ -36,13 +36,13 @@ builder.Services.Configure<IISServerOptions>(options =>
 
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    options.Limits.MaxRequestBodySize = int.MaxValue; // or set to a very large value
+    options.Limits.MaxRequestBodySize = long.MaxValue; // Unlimited or specify a large value
 });
 
 // Configure the request form limits
 builder.Services.Configure<FormOptions>(options =>
 {
-    options.MultipartBodyLengthLimit = long.MaxValue; // unlimited
+    options.MultipartBodyLengthLimit = long.MaxValue; // Unlimited or specify a large value
     options.ValueLengthLimit = int.MaxValue;
     options.MultipartHeadersLengthLimit = int.MaxValue;
 });
@@ -52,6 +52,13 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Change to Always if using HTTPS
+    
+    // Critical for cross-machine access:
+    options.Cookie.Path = "/";
+    options.Cookie.Domain = null; // Let the browser determine the domain
 });
 
 var app = builder.Build();

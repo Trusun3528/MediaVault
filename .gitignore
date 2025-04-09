@@ -3,7 +3,7 @@ bin/
 
 # PhotoStorageDB
 photostoragedb
-photostoragedb.db
+photostorage.db
 photostoragedb.sqlite
 photostoragedb.sqlite3
 *.db-shm
@@ -20,3 +20,5 @@ obj/
 appsettings.Development.json
 *.log
 node_modules/
+
+publish/
