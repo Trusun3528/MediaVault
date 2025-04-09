@@ -244,4 +244,71 @@ public class PhotosController : Controller
         
         return File(memory, photo.ContentType, Path.GetFileName(filePath));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
+
+        if (photo == null)
+        {
+            return NotFound();
+        }
+
+        var model = new UploadPhotoViewModel
+        {
+            Title = photo.Title,
+            Description = photo.Description
+        };
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(int id, UploadPhotoViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
+
+            if (photo == null)
+            {
+                return NotFound();
+            }
+
+            photo.Title = model.Title;
+            photo.Description = model.Description;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = photo.Id });
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
+
+        if (photo == null)
+        {
+            return NotFound();
+        }
+
+        // Delete the file from the server
+        var filePath = Path.Combine(_environment.WebRootPath, "uploads", photo.UserId, photo.FileName);
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath);
+        }
+
+        _context.Photos.Remove(photo);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
 }
