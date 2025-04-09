@@ -1,0 +1,110 @@
+@model PhotoStorage.ViewModels.UploadPhotoViewModel
+@{
+    ViewData["Title"] = "Upload Media";
+}
+
+<div class="row justify-content-center animate-fade-in">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <h2 class="text-center mb-4">Upload a New Photo or Video</h2>
+                
+                <form asp-controller="Photos" asp-action="Upload" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Title</label>
+                        <input asp-for="Title" class="form-control" placeholder="Enter a title for your media" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description (Optional)</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe your photo or video"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label asp-for="MediaFile" class="form-label">Select Media</label>
+                        <div class="input-group">
+                            <input asp-for="MediaFile" class="form-control" type="file" accept="image/*,video/*" />
+                        </div>
+                        <span asp-validation-for="MediaFile" class="text-danger"></span>
+                        <div class="form-text">
+                            Supported formats: Images (JPG, PNG, GIF), Videos (MP4, WebM, MOV)
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cloud-arrow-up me-2"></i>Upload Media
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <a asp-controller="Photos" asp-action="Index">Back to My Gallery</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Preview image/video before upload
+        document.querySelector('#MediaFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Create preview if it doesn't exist
+            let previewContainer = document.querySelector('#media-preview');
+            if (!previewContainer) {
+                previewContainer = document.createElement('div');
+                previewContainer.id = 'media-preview';
+                previewContainer.className = 'mt-3 text-center p-3 bg-light rounded';
+                this.parentNode.parentNode.appendChild(previewContainer);
+            }
+            
+            // Clear previous preview
+            previewContainer.innerHTML = '';
+            
+            const isVideo = file.type.startsWith('video/');
+            
+            if (isVideo) {
+                // Create video element
+                const video = document.createElement('video');
+                video.className = 'img-fluid rounded';
+                video.style.maxHeight = '300px';
+                video.controls = true;
+                previewContainer.appendChild(video);
+                
+                // Read and display the video
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    video.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                previewContainer.innerHTML += '<p class="mt-2 mb-0 text-muted">Video Preview</p>';
+            } else {
+                // Create image element
+                const img = document.createElement('img');
+                img.className = 'img-fluid rounded';
+                img.style.maxHeight = '300px';
+                previewContainer.appendChild(img);
+                
+                // Read and display the image
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                previewContainer.innerHTML += '<p class="mt-2 mb-0 text-muted">Image Preview</p>';
+            }
+        });
+    </script>
+}

@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="hero p-5 animate-fade-in">
+    <div class="row align-items-center">
+        <div class="col-md-7">
+            <h1 class="display-4 mb-4">Store and share your photos securely</h1>
+            <p class="lead mb-4">Upload, organize, and selectively share your photos with our safe and easy-to-use platform.</p>
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <div class="mt-4">
+                    <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg me-3">Get Started</a>
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-outline-light btn-lg">Sign In</a>
+                </div>
+            }
+            else
+            {
+                <div class="mt-4">
+                    <a asp-controller="Photos" asp-action="Upload" class="btn btn-light btn-lg me-3">Upload Media</a>
+                    <a asp-controller="Photos" asp-action="Index" class="btn btn-outline-light btn-lg">View My Media</a>
+                </div>
+            }
+        </div>
+        <div class="col-md-5 d-none d-md-block">
+            <img src="https://via.placeholder.com/500x400" alt="Photography illustration" class="img-fluid rounded" />
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 animate-fade-in" style="animation-delay: 0.2s">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center p-4">
+            <div class="mb-3 text-primary">
+                <i class="bi bi-cloud-arrow-up" style="font-size: 3rem;"></i>
+            </div>
+            <h3>Easy Upload</h3>
+            <p class="text-muted">Quickly upload and organize your photos in one secure location.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center p-4">
+            <div class="mb-3 text-primary">
+                <i class="bi bi-shield-lock" style="font-size: 3rem;"></i>
+            </div>
+            <h3>Private by Default</h3>
+            <p class="text-muted">Your photos remain private until you choose to share them.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center p-4">
+            <div class="mb-3 text-primary">
+                <i class="bi bi-share" style="font-size: 3rem;"></i>
+            </div>
+            <h3>Selective Sharing</h3>
+            <p class="text-muted">Generate unique links to share specific photos with others.</p>
+        </div>
+    </div>
+</div>

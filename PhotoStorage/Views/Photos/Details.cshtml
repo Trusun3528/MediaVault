@@ -1,0 +1,147 @@
+@model PhotoStorage.Models.Photo
+@{
+    ViewData["Title"] = Model.Title;
+    var shareUrl = Url.Action("View", "Photos", new { id = Model.PublicId }, Context.Request.Scheme);
+}
+
+<div class="row animate-fade-in">
+    <div class="col-md-8">
+        <div class="photo-detail-card mb-4">
+            @if (Model.IsVideo)
+            {
+                <div class="video-container mb-4">
+                    <video class="video-player" controls>
+                        <source src="@Url.Action("Download", "Photos", new { id = Model.Id })" type="@Model.ContentType">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            }
+            else
+            {
+                <img src="@Url.Action("Download", "Photos", new { id = Model.Id })" class="photo-detail-img mb-4" alt="@Model.Title">
+            }
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="mb-0">@Model.Title</h1>
+                
+                @if (Model.IsPublic)
+                {
+                    <span class="badge-published">
+                        <i class="bi bi-globe me-1"></i>Published
+                    </span>
+                }
+            </div>
+            
+            <p class="text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                Uploaded on @Model.UploadDate.ToString("MMMM dd, yyyy")
+            </p>
+            
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="mt-3">
+                    <h5>Description</h5>
+                    <p>@Model.Description</p>
+                </div>
+            }
+            
+            <div class="d-flex mt-4">
+                <a href="@Url.Action("Download", "Photos", new { id = Model.Id })" class="btn btn-outline-primary me-2" download>
+                    <i class="bi bi-download me-1"></i>Download
+                </a>
+                
+                @if (Model.IsPublic)
+                {
+                    <form asp-controller="Photos" asp-action="Unpublish" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-eye-slash me-1"></i>Make Private
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-controller="Photos" asp-action="Publish" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-globe me-1"></i>Publish
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="photo-detail-card">
+            <h4><i class="bi bi-info-circle me-2"></i>File Information</h4>
+            <ul class="list-group list-group-flush mt-3">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Type</span>
+                    <span class="text-muted">
+                        @(Model.IsVideo ? "Video" : "Image") 
+                        (@Model.ContentType)
+                    </span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>File Size</span>
+                    <span class="text-muted">@(Model.FileSize / 1024 > 1024 ? $"{Model.FileSize / 1048576:F2} MB" : $"{Model.FileSize / 1024:F0} KB")</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Status</span>
+                    @if (Model.IsPublic)
+                    {
+                        <span class="text-success">Public</span>
+                    }
+                    else
+                    {
+                        <span class="text-secondary">Private</span>
+                    }
+                </li>
+            </ul>
+            
+            @if (Model.IsPublic)
+            {
+                <div class="mt-4">
+                    <h5><i class="bi bi-share me-2"></i>Share This @(Model.IsVideo ? "Video" : "Photo")</h5>
+                    <div class="share-link mt-2 mb-3">
+                        @shareUrl
+                    </div>
+                    
+                    <button id="copyLink" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-clipboard me-1"></i>Copy Link
+                    </button>
+                </div>
+            }
+        </div>
+        
+        <div class="d-grid mt-3">
+            <a asp-controller="Photos" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>Back to My Gallery
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @if (Model.IsPublic)
+    {
+        <script>
+            document.getElementById('copyLink').addEventListener('click', function() {
+                const shareUrl = '@shareUrl';
+                navigator.clipboard.writeText(shareUrl).then(function() {
+                    const button = document.getElementById('copyLink');
+                    const originalText = button.innerHTML;
+                    
+                    button.innerHTML = '<i class="bi bi-check-lg me-1"></i>Copied!';
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-success');
+                    
+                    setTimeout(function() {
+                        button.innerHTML = originalText;
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-primary');
+                    }, 2000);
+                });
+            });
+        </script>
+    }
+}

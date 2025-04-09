@@ -1,0 +1,22 @@
+# Bin folder
+bin/
+
+# PhotoStorageDB
+photostoragedb
+photostoragedb.db
+photostoragedb.sqlite
+photostoragedb.sqlite3
+*.db-shm
+*.db-wal
+
+# Uploads in wwwroot
+wwwroot/uploads/
+wwwroot/uploads/*
+# Other common files/folders to ignore
+obj/
+.vs/
+*.user
+*.suo
+appsettings.Development.json
+*.log
+node_modules/
