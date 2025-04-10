@@ -11,10 +11,8 @@
         <div class="col-md-4 mb-4">
             <div class="card">
                 <a href="@Url.Action("WatchVideo", "Photos", new { id = video.Id })">
-                    <video class="card-img-top">
-                        <source src="@Url.Action("Download", "Photos", new { id = video.Id })" type="@video.ContentType">
-                        Your browser does not support the video tag.
-                    </video>
+                    <img src="@Url.Content("~/uploads/" + video.UserId + "/" + video.ThumbnailFileName)" 
+                         class="card-img-top" alt="@video.Title">
                 </a>
                 <div class="card-body">
                     <h5 class="card-title">@video.Title</h5>

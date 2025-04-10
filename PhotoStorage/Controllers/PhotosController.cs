@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using PhotoStorage.Data;
 using PhotoStorage.Models;
 using PhotoStorage.ViewModels;
+using MediaToolkit;
+using MediaToolkit.Model;
 
 namespace PhotoStorage.Controllers;
 
@@ -54,10 +56,7 @@ public class PhotosController : Controller
             // Determine media type
             MediaType mediaType = MediaType.Image;
             bool isVideo = model.MediaFile.ContentType.StartsWith("video/");
-            if (isVideo)
-            {
-                mediaType = MediaType.Video;
-            }
+           
             
             // Validate file type
             if (!IsAllowedFileType(model.MediaFile.ContentType))
@@ -98,7 +97,20 @@ public class PhotosController : Controller
                 UploadDate = DateTime.UtcNow,
                 MediaType = mediaType
             };
+
             
+             if (isVideo)
+            {
+                mediaType = MediaType.Video;
+
+                // Generate a thumbnail for the video
+                var thumbnailFileName = Guid.NewGuid().ToString() + ".jpg";
+                var thumbnailPath = Path.Combine(userFolder, thumbnailFileName);
+
+                GenerateVideoThumbnail(filePath, thumbnailPath);
+
+                mediaItem.ThumbnailFileName = thumbnailFileName;
+            }
             // TODO: For videos, you could generate a thumbnail and set duration
             // This would require additional libraries for video processing
             
@@ -354,21 +366,79 @@ public class PhotosController : Controller
     }
 
     [AllowAnonymous]
-public async Task<IActionResult> WatchVideo(int id)
-{
-    var video = await _context.Photos
-        .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == MediaType.Video);
-
-    if (video == null)
+    public async Task<IActionResult> WatchVideo(int id)
     {
-        return NotFound();
+        var video = await _context.Photos
+            .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == MediaType.Video);
+
+        if (video == null)
+        {
+            return NotFound();
+        }
+
+        var otherVideos = await _context.Photos
+            .Where(p => p.Id != id && p.IsPublic && p.MediaType == MediaType.Video)
+            .Take(10)
+            .ToListAsync();
+
+        return View(Tuple.Create(video, otherVideos));
     }
 
-    var otherVideos = await _context.Photos
-        .Where(p => p.Id != id && p.IsPublic && p.MediaType == MediaType.Video)
-        .Take(10)
-        .ToListAsync();
+    [HttpPost]
+    public async Task<IActionResult> GenerateThumbnails()
+    {
+        // Ensure the user is authenticated
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
 
-    return View(Tuple.Create(video, otherVideos));
-}
+        // Find all videos without thumbnails
+        var videosWithoutThumbnails = await _context.Photos
+            .Where(p => p.MediaType == MediaType.Video && string.IsNullOrEmpty(p.ThumbnailFileName))
+            .ToListAsync();
+
+        foreach (var video in videosWithoutThumbnails)
+        {
+            var videoPath = Path.Combine(_environment.WebRootPath, "uploads", video.UserId, video.FileName);
+            var thumbnailFileName = Guid.NewGuid().ToString() + ".jpg";
+            var thumbnailPath = Path.Combine(_environment.WebRootPath, "uploads", video.UserId, thumbnailFileName);
+
+            if (System.IO.File.Exists(videoPath))
+            {
+                try
+                {
+                    GenerateVideoThumbnail(videoPath, thumbnailPath);
+                    video.ThumbnailFileName = thumbnailFileName;
+                }
+                catch (Exception ex)
+                {
+                    // Log the error and continue with the next video
+                    Console.WriteLine($"Error generating thumbnail for video {video.Id}: {ex.Message}");
+                }
+            }
+        }
+
+        // Save changes to the database
+        await _context.SaveChangesAsync();
+
+        return Ok($"Generated thumbnails for {videosWithoutThumbnails.Count} videos.");
+    }
+
+    // Helper method to generate video thumbnails
+    private void GenerateVideoThumbnail(string videoPath, string thumbnailPath)
+    {
+        var inputFile = new MediaFile { Filename = videoPath };
+        var outputFile = new MediaFile { Filename = thumbnailPath };
+
+        using (var engine = new Engine())
+        {
+            engine.GetMetadata(inputFile);
+
+            // Extract a frame at 1 second into the video
+            var options = new MediaToolkit.Options.ConversionOptions { Seek = TimeSpan.FromSeconds(1) };
+            engine.GetThumbnail(inputFile, outputFile, options);
+        }
+    }
 }
