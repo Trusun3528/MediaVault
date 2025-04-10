@@ -23,7 +23,10 @@
             {
                 <li class="list-group-item d-flex align-items-center">
                     <a href="@Url.Action("WatchVideo", "Photos", new { id = otherVideo.Id })" class="d-flex align-items-center text-decoration-none">
-                        <img src="@Url.Action("Download", "Photos", new { id = otherVideo.Id })" alt="@otherVideo.Title" class="img-thumbnail me-2" style="width: 80px; height: 45px; object-fit: cover;">
+                        <img src="@Url.Content("~/uploads/" + otherVideo.UserId + "/" + otherVideo.ThumbnailFileName)" 
+                             alt="@otherVideo.Title" 
+                             class="img-thumbnail me-2" 
+                             style="width: 80px; height: 45px; object-fit: cover;">
                         <span class="text-truncate">@otherVideo.Title</span>
                     </a>
                 </li>
