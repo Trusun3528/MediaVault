@@ -85,6 +85,19 @@ public class PhotosController : Controller
                 await model.MediaFile.CopyToAsync(stream);
             }
             
+            // Handle video-specific logic
+            string? thumbnailFileName = null;
+            if (isVideo)
+            {
+                mediaType = MediaType.Video;
+
+                // Generate a thumbnail for the video
+                thumbnailFileName = Guid.NewGuid().ToString() + ".jpg";
+                var thumbnailPath = Path.Combine(userFolder, thumbnailFileName);
+
+                GenerateVideoThumbnail(filePath, thumbnailPath);
+            }
+            
             // Create photo/video record
             var mediaItem = new Photo
             {
@@ -95,25 +108,10 @@ public class PhotosController : Controller
                 FileSize = model.MediaFile.Length,
                 UserId = user.Id,
                 UploadDate = DateTime.UtcNow,
-                MediaType = mediaType
+                MediaType = mediaType,
+                ThumbnailFileName = thumbnailFileName // Set the thumbnail file name here
             };
 
-            
-             if (isVideo)
-            {
-                mediaType = MediaType.Video;
-
-                // Generate a thumbnail for the video
-                var thumbnailFileName = Guid.NewGuid().ToString() + ".jpg";
-                var thumbnailPath = Path.Combine(userFolder, thumbnailFileName);
-
-                GenerateVideoThumbnail(filePath, thumbnailPath);
-
-                mediaItem.ThumbnailFileName = thumbnailFileName;
-            }
-            // TODO: For videos, you could generate a thumbnail and set duration
-            // This would require additional libraries for video processing
-            
             _context.Photos.Add(mediaItem);
             await _context.SaveChangesAsync();
             

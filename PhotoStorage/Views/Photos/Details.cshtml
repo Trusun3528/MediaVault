@@ -9,8 +9,8 @@
         <div class="photo-detail-card mb-4">
             @if (Model.IsVideo)
             {
-                <div class="video-container mb-4">
-                    <video class="video-player" controls>
+                <div class="video-container mb-4" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                    <video class="video-player" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
                         <source src="@Url.Action("Download", "Photos", new { id = Model.Id })" type="@Model.ContentType">
                         Your browser does not support the video tag.
                     </video>
