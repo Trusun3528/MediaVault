@@ -32,6 +32,17 @@
                 }
             </div>
             
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a asp-controller="Photos" asp-action="Details" asp-route-id="@ViewBag.PreviousPhotoId" 
+                   class="btn btn-outline-secondary @((ViewBag.PreviousPhotoId == null) ? "disabled" : "")">
+                    <i class="bi bi-arrow-left me-1"></i>Previous
+                </a>
+                <a asp-controller="Photos" asp-action="Details" asp-route-id="@ViewBag.NextPhotoId" 
+                   class="btn btn-outline-secondary @((ViewBag.NextPhotoId == null) ? "disabled" : "")">
+                    Next<i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            
             <p class="text-muted">
                 <i class="bi bi-calendar3 me-1"></i>
                 Uploaded on @Model.UploadDate.ToString("MMMM dd, yyyy")

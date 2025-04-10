@@ -135,12 +135,26 @@ public class PhotosController : Controller
     {
         var user = await _userManager.GetUserAsync(User);
         var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
-        
+
         if (photo == null)
         {
             return NotFound();
         }
-        
+
+        // Fetch the next and previous photos
+        var previousPhoto = await _context.Photos
+            .Where(p => p.UserId == user.Id && p.UploadDate < photo.UploadDate)
+            .OrderByDescending(p => p.UploadDate)
+            .FirstOrDefaultAsync();
+
+        var nextPhoto = await _context.Photos
+            .Where(p => p.UserId == user.Id && p.UploadDate > photo.UploadDate)
+            .OrderBy(p => p.UploadDate)
+            .FirstOrDefaultAsync();
+
+        ViewBag.PreviousPhotoId = previousPhoto?.Id;
+        ViewBag.NextPhotoId = nextPhoto?.Id;
+
         return View(photo);
     }
 
