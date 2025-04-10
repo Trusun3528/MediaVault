@@ -441,4 +441,18 @@ public class PhotosController : Controller
             engine.GetThumbnail(inputFile, outputFile, options);
         }
     }
+
+    [AllowAnonymous]
+public async Task<IActionResult> ViewPhoto(int id)
+{
+    var photo = await _context.Photos
+        .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == MediaType.Image);
+
+    if (photo == null)
+    {
+        return NotFound();
+    }
+
+    return View(photo);
+}
 }

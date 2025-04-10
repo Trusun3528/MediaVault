@@ -294,3 +294,23 @@ body {
   margin-top: 1.5rem;
   border-radius: var(--border-radius);
 }
+
+.video-container, .photo-container {
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  padding: 10px;
+}
+
+.list-group-item {
+  transition: background-color 0.3s ease;
+}
+
+.list-group-item:hover {
+  background-color: #f1f1f1;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

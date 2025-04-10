@@ -1,0 +1,21 @@
+@model PhotoStorage.Models.Photo
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="photo-container mb-4 shadow-sm rounded">
+            <img src="@Url.Action("Download", "Photos", new { id = Model.Id })" class="img-fluid rounded" alt="@Model.Title">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h4 class="mb-3">Photo Details</h4>
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Title:</strong> @Model.Title</li>
+            <li class="list-group-item"><strong>Description:</strong> @Model.Description</li>
+            <li class="list-group-item"><strong>Uploaded On:</strong> @Model.UploadDate.ToString("MMMM dd, yyyy")</li>
+            <li class="list-group-item"><strong>File Size:</strong> @Model.FileSize MB</li>
+        </ul>
+    </div>
+</div>
