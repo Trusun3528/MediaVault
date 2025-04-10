@@ -256,7 +256,7 @@ public class PhotosController : Controller
             return NotFound();
         }
 
-        var model = new UploadPhotoViewModel
+        var model = new EditPhotoViewModel
         {
             Title = photo.Title,
             Description = photo.Description
@@ -266,7 +266,7 @@ public class PhotosController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(int id, UploadPhotoViewModel model)
+    public async Task<IActionResult> Edit(int id, EditPhotoViewModel model)
     {
         if (ModelState.IsValid)
         {
@@ -278,11 +278,18 @@ public class PhotosController : Controller
                 return NotFound();
             }
 
+            // Update the photo's title and description
             photo.Title = model.Title;
             photo.Description = model.Description;
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = photo.Id });
+        }
+
+        // Log validation errors for debugging
+        foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            Console.WriteLine(error.ErrorMessage);
         }
 
         return View(model);
