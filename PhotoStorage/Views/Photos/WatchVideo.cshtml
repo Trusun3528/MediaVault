@@ -1,0 +1,33 @@
+@model Tuple<PhotoStorage.Models.Photo, List<PhotoStorage.Models.Photo>>
+@{
+    var video = Model.Item1;
+    var otherVideos = Model.Item2;
+    ViewData["Title"] = video.Title;
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="video-container mb-4">
+            <video controls autoplay class="w-100">
+                <source src="@Url.Action("Download", "Photos", new { id = video.Id })" type="@video.ContentType">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <h2>@video.Title</h2>
+        <p>@video.Description</p>
+    </div>
+    <div class="col-md-4">
+        <h4>Other Videos</h4>
+        <ul class="list-group">
+            @foreach (var otherVideo in otherVideos)
+            {
+                <li class="list-group-item d-flex align-items-center">
+                    <a href="@Url.Action("WatchVideo", "Photos", new { id = otherVideo.Id })" class="d-flex align-items-center text-decoration-none">
+                        <img src="@Url.Action("Download", "Photos", new { id = otherVideo.Id })" alt="@otherVideo.Title" class="img-thumbnail me-2" style="width: 80px; height: 45px; object-fit: cover;">
+                        <span>@otherVideo.Title</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>

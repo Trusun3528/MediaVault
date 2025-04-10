@@ -97,16 +97,21 @@ body {
 
 /* Card styling */
 .card {
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border: none;
   transition: transform 0.2s, box-shadow 0.2s;
-  overflow: hidden;
 }
 
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card img, .card video {
+  object-fit: cover;
+  height: 200px;
 }
 
 .card-img-top {
@@ -115,7 +120,8 @@ body {
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: 1rem;
+  text-align: center;
 }
 
 .card-title {
@@ -237,10 +243,17 @@ body {
 /* Video styling */
 .video-container {
   position: relative;
-  width: 100%;
-  background-color: #000;
-  border-radius: var(--border-radius);
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
   overflow: hidden;
+}
+
+.video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .video-player {

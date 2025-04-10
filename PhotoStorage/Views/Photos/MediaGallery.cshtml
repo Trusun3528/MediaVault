@@ -1,0 +1,21 @@
+@model List<PhotoStorage.Models.Photo>
+@{
+    ViewData["Title"] = "Photo Gallery";
+}
+
+<h1 class="mb-4">Public Photo Gallery</h1>
+
+<div class="row">
+    @foreach (var photo in Model.Where(media => !media.IsVideo))
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="@Url.Action("Download", "Photos", new { id = photo.Id })" class="card-img-top" alt="@photo.Title">
+                <div class="card-body">
+                    <h5 class="card-title">@photo.Title</h5>
+                    <p class="card-text">@photo.Description</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>

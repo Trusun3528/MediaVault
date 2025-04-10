@@ -332,4 +332,43 @@ public class PhotosController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    [AllowAnonymous]
+    public async Task<IActionResult> VideoGallery()
+    {
+        var videos = await _context.Photos
+            .Where(p => p.IsPublic && p.MediaType == MediaType.Video)
+            .ToListAsync();
+
+        return View(videos);
+    }
+
+    [AllowAnonymous]
+    public async Task<IActionResult> MediaGallery()
+    {
+        var media = await _context.Photos
+            .Where(p => p.IsPublic)
+            .ToListAsync();
+
+        return View(media);
+    }
+
+    [AllowAnonymous]
+public async Task<IActionResult> WatchVideo(int id)
+{
+    var video = await _context.Photos
+        .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == MediaType.Video);
+
+    if (video == null)
+    {
+        return NotFound();
+    }
+
+    var otherVideos = await _context.Photos
+        .Where(p => p.Id != id && p.IsPublic && p.MediaType == MediaType.Video)
+        .Take(10)
+        .ToListAsync();
+
+    return View(Tuple.Create(video, otherVideos));
+}
 }

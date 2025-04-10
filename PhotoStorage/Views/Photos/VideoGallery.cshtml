@@ -1,0 +1,26 @@
+@model List<PhotoStorage.Models.Photo>
+@{
+    ViewData["Title"] = "Video Gallery";
+}
+
+<h1 class="mb-4">Public Video Gallery</h1>
+
+<div class="row">
+    @foreach (var video in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <a href="@Url.Action("WatchVideo", "Photos", new { id = video.Id })">
+                    <video class="card-img-top">
+                        <source src="@Url.Action("Download", "Photos", new { id = video.Id })" type="@video.ContentType">
+                        Your browser does not support the video tag.
+                    </video>
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">@video.Title</h5>
+                    <p class="card-text">@video.Description</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
