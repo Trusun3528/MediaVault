@@ -14,7 +14,8 @@ The app is designed to be straightforward and easy to use, with a clean interfac
 
 ## Screenshots
 
-> _Add some screenshots here to show off the interface and key features._
+![image](https://github.com/user-attachments/assets/00b4f13d-cb17-419b-8135-bf08b5d04d84)
+
 
 ---
 
