@@ -23,6 +23,21 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult EasyUpload()
+    {
+        return View();
+    }
+
+    public IActionResult PrivateByDefault()
+    {
+        return View();
+    }
+
+    public IActionResult SelectiveSharing()
+    {
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
