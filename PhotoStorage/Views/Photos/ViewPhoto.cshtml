@@ -6,7 +6,20 @@
 <div class="row">
     <div class="col-md-8">
         <div class="photo-container mb-4 shadow-sm rounded">
-            <img src="@Url.Action("Download", "Photos", new { id = Model.Id })" class="img-fluid rounded" alt="@Model.Title">
+            @if (Model.IsAudio)
+            {
+                <div class="text-center">
+                    <h3>Audio Preview</h3>
+                    <audio class="w-100" src="/uploads/@Model.UserId/@Model.AudioFileName" controls></audio>
+                </div>
+            }
+            else
+            {
+                <div class="text-center">
+                    <h3>Photo Preview</h3>
+                    <img class="img-fluid" src="/uploads/@Model.UserId/@Model.FileName" alt="@Model.Title" />
+                </div>
+            }
         </div>
     </div>
     <div class="col-md-4">

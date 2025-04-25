@@ -7,18 +7,26 @@
     <div class="col-md-10">
         <div class="photo-detail-card">
             <div class="text-center mb-4">
-                @if (Model.IsVideo)
+                @if (Model.IsAudio)
                 {
-                    <div class="video-container mb-4 shadow-sm rounded" style="position: relative; padding-top: 56.25%; overflow: hidden;">
-                        <video controls autoplay class="w-100 h-100 rounded" style="position: absolute; top: 0; left: 0; object-fit: contain;">
-                            <source src="@Url.Action("Download", "Photos", new { publicId = Model.PublicId })" type="@Model.ContentType">
-                            Your browser does not support the video tag.
-                        </video>
+                    <div class="text-center">
+                        <h3>Audio Preview</h3>
+                        <audio class="w-100" src="/uploads/@Model.UserId/@Model.AudioFileName" controls></audio>
+                    </div>
+                }
+                else if (Model.IsVideo)
+                {
+                    <div class="text-center">
+                        <h3>Video Preview</h3>
+                        <video class="img-fluid" src="/uploads/@Model.UserId/@Model.FileName" controls></video>
                     </div>
                 }
                 else
                 {
-                    <img src="@Url.Action("Download", "Photos", new { publicId = Model.PublicId })" class="photo-detail-img" alt="@Model.Title">
+                    <div class="text-center">
+                        <h3>Photo Preview</h3>
+                        <img class="img-fluid" src="/uploads/@Model.UserId/@Model.FileName" alt="@Model.Title" />
+                    </div>
                 }
             </div>
             
@@ -33,14 +41,14 @@
             
             <div class="d-flex justify-content-center mt-4">
                 <a href="@Url.Action("Download", "Photos", new { publicId = Model.PublicId })" class="btn btn-primary" download>
-                    <i class="bi bi-download me-2"></i>Download @(Model.IsVideo ? "Video" : "Photo")
+                    <i class="bi bi-download me-2"></i>Download @(Model.IsVideo ? "Video" : Model.IsAudio ? "Audio" : "Photo")
                 </a>
             </div>
         </div>
         
         <div class="text-center mt-4">
             <p class="small text-muted">
-                This @(Model.IsVideo ? "video" : "photo") is shared with PhotoVault - a secure media storage service.
+                This @(Model.IsVideo ? "video" : Model.IsAudio ? "audio" : "photo") is shared with PhotoVault - a secure media storage service.
             </p>
             <a asp-controller="Home" asp-action="Index" class="btn btn-link">
                 Create your own media gallery

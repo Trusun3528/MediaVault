@@ -56,16 +56,18 @@ public class PhotosController : Controller
             // Determine media type
             MediaType mediaType = MediaType.Image;
             bool isVideo = model.MediaFile.ContentType.StartsWith("video/");
-           
+            var isAudio = model.MediaFile.ContentType.StartsWith("audio/");
+            if (isAudio)
+            {
+                mediaType = MediaType.Audio;
+            }
             
             // Validate file type
             if (!IsAllowedFileType(model.MediaFile.ContentType))
             {
-                ModelState.AddModelError("MediaFile", "Unsupported file type. Allowed types: jpg, png, gif, mp4, mov, avi, webm");
+                ModelState.AddModelError("MediaFile", "Unsupported file type. Allowed types: jpg, png, gif, mp4, mov, avi, webm, mp3, wav, ogg");
                 return View(model);
             }
-            
-            
             
             // Create uploads directory if it doesn't exist
             var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
@@ -98,7 +100,7 @@ public class PhotosController : Controller
                 GenerateVideoThumbnail(filePath, thumbnailPath);
             }
             
-            // Create photo/video record
+            // Create photo/audio/video record
             var mediaItem = new Photo
             {
                 Title = model.Title,
@@ -111,6 +113,11 @@ public class PhotosController : Controller
                 MediaType = mediaType,
                 ThumbnailFileName = thumbnailFileName // Set the thumbnail file name here
             };
+
+            if (isAudio)
+            {
+                mediaItem.AudioFileName = uniqueFileName;
+            }
 
             _context.Photos.Add(mediaItem);
             await _context.SaveChangesAsync();
@@ -134,7 +141,11 @@ public class PhotosController : Controller
             "video/mp4", 
             "video/quicktime",  // .mov
             "video/x-msvideo",  // .avi
-            "video/webm" 
+            "video/webm",
+            // Audio
+            "audio/mpeg",  // .mp3
+            "audio/wav",   // .wav
+            "audio/ogg"    // .ogg
         };
         
         return allowedTypes.Contains(contentType);

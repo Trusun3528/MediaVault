@@ -7,18 +7,26 @@
 <div class="row animate-fade-in">
     <div class="col-md-8">
         <div class="photo-detail-card mb-4">
-            @if (Model.IsVideo)
+            @if (Model.IsAudio)
             {
-                <div class="video-container mb-4" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
-                    <video class="video-player" controls style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
-                        <source src="@Url.Action("Download", "Photos", new { id = Model.Id })" type="@Model.ContentType">
-                        Your browser does not support the video tag.
-                    </video>
+                <div class="text-center">
+                    <h3>Audio Preview</h3>
+                    <audio class="w-100" src="/uploads/@Model.UserId/@Model.AudioFileName" controls></audio>
+                </div>
+            }
+            else if (Model.IsVideo)
+            {
+                <div class="text-center">
+                    <h3>Video Preview</h3>
+                    <video class="img-fluid" src="/uploads/@Model.UserId/@Model.FileName" controls></video>
                 </div>
             }
             else
             {
-                <img src="@Url.Action("Download", "Photos", new { id = Model.Id })" class="photo-detail-img mb-4" alt="@Model.Title">
+                <div class="text-center">
+                    <h3>Photo Preview</h3>
+                    <img class="img-fluid" src="/uploads/@Model.UserId/@Model.FileName" alt="@Model.Title" />
+                </div>
             }
             
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -100,7 +108,7 @@
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Type</span>
                     <span class="text-muted">
-                        @(Model.IsVideo ? "Video" : "Image") 
+                        @(Model.IsVideo ? "Video" : Model.IsAudio ? "Audio" : "Image") 
                         (@Model.ContentType)
                     </span>
                 </li>
@@ -124,7 +132,7 @@
             @if (Model.IsPublic)
             {
                 <div class="mt-4">
-                    <h5><i class="bi bi-share me-2"></i>Share This @(Model.IsVideo ? "Video" : "Photo")</h5>
+                    <h5><i class="bi bi-share me-2"></i>Share This @(Model.IsVideo ? "Video" : Model.IsAudio ? "Audio" : "Photo")</h5>
                     <div class="share-link mt-2 mb-3">
                         @shareUrl
                     </div>

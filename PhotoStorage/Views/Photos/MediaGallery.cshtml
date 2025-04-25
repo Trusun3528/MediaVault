@@ -6,16 +6,23 @@
 <h1 class="mb-4">Public Photo Gallery</h1>
 
 <div class="row">
-    @foreach (var photo in Model.Where(media => !media.IsVideo))
+    @foreach (var item in Model.Where(p => !p.IsVideo))
     {
         <div class="col-md-4 mb-4">
-            <div class="card">
-                <a href="@Url.Action("ViewPhoto", "Photos", new { id = photo.Id })">
-                    <img src="@Url.Action("Download", "Photos", new { id = photo.Id })" class="card-img-top" alt="@photo.Title">
+            <div class="card media-item">
+                <a asp-controller="Photos" asp-action="Details" asp-route-id="@item.Id" class="stretched-link">
+                    @if (item.IsAudio)
+                    {
+                        <audio class="w-100" src="/uploads/@item.UserId/@item.FileName" controls></audio>
+                    }
+                    else
+                    {
+                        <img class="img-fluid rounded" src="/uploads/@item.UserId/@item.FileName" alt="@item.Title" style="object-fit: cover; height: 200px; width: 100%;" />
+                    }
                 </a>
                 <div class="card-body">
-                    <h5 class="card-title">@photo.Title</h5>
-                    <p class="card-text">@photo.Description</p>
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="card-text text-muted">@item.Description</p>
                 </div>
             </div>
         </div>

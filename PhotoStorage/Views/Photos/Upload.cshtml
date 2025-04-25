@@ -7,7 +7,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-body p-4">
-                <h2 class="text-center mb-4">Upload a New Photo or Video</h2>
+                <h2 class="text-center mb-4">Upload a New Photo, Video, or Audio</h2>
                 
                 <form asp-controller="Photos" asp-action="Upload" method="post" enctype="multipart/form-data">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
@@ -20,18 +20,18 @@
                     
                     <div class="mb-3">
                         <label asp-for="Description" class="form-label">Description (Optional)</label>
-                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe your photo or video"></textarea>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe your photo, video, or audio"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                     
                     <div class="mb-4">
                         <label asp-for="MediaFile" class="form-label">Select Media</label>
                         <div class="input-group">
-                            <input asp-for="MediaFile" class="form-control" type="file" accept="image/*,video/*" />
+                            <input asp-for="MediaFile" class="form-control" type="file" accept="image/*,video/*,audio/*" />
                         </div>
                         <span asp-validation-for="MediaFile" class="text-danger"></span>
                         <div class="form-text">
-                            Supported formats: Images (JPG, PNG, GIF), Videos (MP4, WebM, MOV)
+                            Supported formats: Images (JPG, PNG, GIF), Videos (MP4, WebM, MOV), Audio (MP3, WAV, OGG)
                         </div>
                     </div>
                     
@@ -54,7 +54,7 @@
     <partial name="_ValidationScriptsPartial" />
     
     <script>
-        // Preview image/video before upload
+        // Preview image/video/audio before upload
         document.querySelector('#MediaFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -72,6 +72,7 @@
             previewContainer.innerHTML = '';
             
             const isVideo = file.type.startsWith('video/');
+            const isAudio = file.type.startsWith('audio/');
             
             if (isVideo) {
                 // Create video element
@@ -89,6 +90,20 @@
                 reader.readAsDataURL(file);
                 
                 previewContainer.innerHTML += '<p class="mt-2 mb-0 text-muted">Video Preview</p>';
+            } else if (isAudio) {
+                // Create audio element
+                const audio = document.createElement('audio');
+                audio.controls = true;
+                previewContainer.appendChild(audio);
+                
+                // Read and display the audio
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    audio.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                previewContainer.innerHTML += '<p class="mt-2 mb-0 text-muted">Audio Preview</p>';
             } else {
                 // Create image element
                 const img = document.createElement('img');

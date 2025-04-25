@@ -16,16 +16,19 @@ public class Photo
     public MediaType MediaType { get; set; } = MediaType.Image;
     public int? DurationSeconds { get; set; }
     public string? ThumbnailFileName { get; set; }
+    public string? AudioFileName { get; set; }
     
     public string UserId { get; set; } = string.Empty;
     public ApplicationUser? User { get; set; }
     
     // Helper property to determine if this is a video
     public bool IsVideo => MediaType == MediaType.Video;
+    public bool IsAudio => MediaType == MediaType.Audio;
 }
 
 public enum MediaType
 {
     Image,
-    Video
+    Video,
+    Audio
 }
