@@ -11,8 +11,8 @@ using PhotoStorage.Data;
 namespace PhotoStorage.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250409044119_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250425201537_InitialSetup")]
+    partial class InitialSetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -218,6 +218,9 @@ namespace PhotoStorage.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("AudioFileName")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -225,6 +228,9 @@ namespace PhotoStorage.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("DurationSeconds")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -236,7 +242,16 @@ namespace PhotoStorage.Migrations
                     b.Property<bool>("IsPublic")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("MediaType")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("PublicId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ThumbnailFileName")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
