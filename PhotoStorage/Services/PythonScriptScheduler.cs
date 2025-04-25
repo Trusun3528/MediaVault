@@ -8,9 +8,34 @@ namespace PhotoStorage.Services
     public class PythonScriptScheduler : IHostedService, IDisposable
     {
         private Timer? _timer;
+        private Process? _flaskProcess; // Add a field to track the Flask process
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            // Start the Flask app as a background process
+            _flaskProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "python",
+                    Arguments = "Services/UserActivity/admin_dashboard.py", // Path to the Flask app
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            try
+            {
+                _flaskProcess.Start();
+                Console.WriteLine("Flask app started successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to start Flask app: {ex.Message}");
+            }
+
             // Schedule the script to run every 10 seconds
             _timer = new Timer(RunPythonScript, null, TimeSpan.Zero, TimeSpan.FromSeconds(10));
             return Task.CompletedTask;
@@ -55,6 +80,14 @@ namespace PhotoStorage.Services
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            // Stop the Flask app process
+            if (_flaskProcess != null && !_flaskProcess.HasExited)
+            {
+                _flaskProcess.Kill();
+                _flaskProcess.Dispose();
+                Console.WriteLine("Flask app stopped successfully.");
+            }
+
             _timer?.Change(Timeout.Infinite, 0);
             return Task.CompletedTask;
         }

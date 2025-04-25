@@ -22,3 +22,7 @@ appsettings.Development.json
 node_modules/
 
 publish/
+PhotoStorage/media_stats.json
+PhotoStorage/Services/UserActivity/media_stats.json
+PhotoStorage/Services/UserActivity/user_activity_log.json
+PhotoStorage/Services/UserActivity/user_stats.json
