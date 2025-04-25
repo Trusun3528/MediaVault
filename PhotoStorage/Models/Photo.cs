@@ -24,6 +24,8 @@ public class Photo
     // Helper property to determine if this is a video
     public bool IsVideo => MediaType == MediaType.Video;
     public bool IsAudio => MediaType == MediaType.Audio;
+
+    public string? Tags { get; set; } // AI-generated tags
 }
 
 public enum MediaType

@@ -23,6 +23,10 @@
                 <div class="card-body">
                     <h5 class="card-title">@item.Title</h5>
                     <p class="card-text text-muted">@item.Description</p>
+                    @if (!string.IsNullOrEmpty(item.Tags))
+                    {
+                        <p class="card-text"><strong>Tags:</strong> @item.Tags</p>
+                    }
                 </div>
             </div>
         </div>

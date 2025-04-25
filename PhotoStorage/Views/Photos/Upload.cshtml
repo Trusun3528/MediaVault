@@ -24,6 +24,13 @@
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
                     
+                    <div class="form-check mb-3">
+                        <input asp-for="UseAI" class="form-check-input" type="checkbox" id="UseAI" />
+                        <label class="form-check-label" for="UseAI">
+                            Use AI to generate a description for this photo
+                        </label>
+                    </div>
+                    
                     <div class="mb-4">
                         <label asp-for="MediaFile" class="form-label">Select Media</label>
                         <div class="input-group">

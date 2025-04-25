@@ -18,4 +18,6 @@ public class UploadPhotoViewModel
     
     // This will be automatically determined based on file type
     public MediaType MediaType { get; set; } = MediaType.Image;
+
+    public bool UseAI { get; set; } // Indicates if AI should generate the description
 }

@@ -7,6 +7,7 @@ using PhotoStorage.Models;
 using PhotoStorage.ViewModels;
 using MediaToolkit;
 using MediaToolkit.Model;
+using PhotoStorage.Services;
 
 namespace PhotoStorage.Controllers;
 
@@ -30,6 +31,11 @@ public class PhotosController : Controller
     public async Task<IActionResult> Index()
     {
         var user = await _userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrEmpty(user.Id))
+        {
+            return Challenge();
+        }
+
         var photos = await _context.Photos
             .Where(p => p.UserId == user.Id)
             .OrderByDescending(p => p.UploadDate)
@@ -50,8 +56,10 @@ public class PhotosController : Controller
         if (ModelState.IsValid)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            if (user == null || string.IsNullOrEmpty(user.Id))
+            {
                 return Challenge();
+            }
             
             // Determine media type
             MediaType mediaType = MediaType.Image;
@@ -98,6 +106,13 @@ public class PhotosController : Controller
                 var thumbnailPath = Path.Combine(userFolder, thumbnailFileName);
 
                 GenerateVideoThumbnail(filePath, thumbnailPath);
+            }
+            
+            // Generate description using LM Studio if opted in and media is a photo
+            if (model.UseAI && !isVideo && !isAudio)
+            {
+                var aiService = new LMStudioService(new HttpClient());
+                model.Description = await aiService.GenerateDescriptionAsync(model.Description);
             }
             
             // Create photo/audio/video record
@@ -155,6 +170,11 @@ public class PhotosController : Controller
     public async Task<IActionResult> Details(int id)
     {
         var user = await _userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrEmpty(user.Id))
+        {
+            return Challenge();
+        }
+
         var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
 
         if (photo == null)
@@ -183,6 +203,11 @@ public class PhotosController : Controller
     public async Task<IActionResult> Publish(int id)
     {
         var user = await _userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrEmpty(user.Id))
+        {
+            return Challenge();
+        }
+
         var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
         
         if (photo == null)
@@ -202,6 +227,11 @@ public class PhotosController : Controller
     public async Task<IActionResult> Unpublish(int id)
     {
         var user = await _userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrEmpty(user.Id))
+        {
+            return Challenge();
+        }
+
         var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
         
         if (photo == null)
@@ -218,7 +248,7 @@ public class PhotosController : Controller
     }
 
     [AllowAnonymous]
-    public async Task<IActionResult> View(string id)
+    public new async Task<IActionResult> View(string id)
     {
         var photo = await _context.Photos.FirstOrDefaultAsync(p => p.PublicId == id && p.IsPublic);
         
@@ -244,7 +274,7 @@ public class PhotosController : Controller
             if (photo != null && !photo.IsPublic)
             {
                 var user = await _userManager.GetUserAsync(User);
-                if (user == null || photo.UserId != user.Id)
+                if (user == null || string.IsNullOrEmpty(user.Id) || photo.UserId != user.Id)
                 {
                     return Forbid();
                 }
@@ -284,6 +314,11 @@ public class PhotosController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var user = await _userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrEmpty(user.Id))
+        {
+            return Challenge();
+        }
+
         var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
 
         if (photo == null)
@@ -306,6 +341,11 @@ public class PhotosController : Controller
         if (ModelState.IsValid)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null || string.IsNullOrEmpty(user.Id))
+            {
+                return Challenge();
+            }
+
             var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
 
             if (photo == null)
@@ -334,6 +374,11 @@ public class PhotosController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var user = await _userManager.GetUserAsync(User);
+        if (user == null || string.IsNullOrEmpty(user.Id))
+        {
+            return Challenge();
+        }
+
         var photo = await _context.Photos.FirstOrDefaultAsync(p => p.Id == id && p.UserId == user.Id);
 
         if (photo == null)
@@ -398,7 +443,7 @@ public class PhotosController : Controller
     {
         // Ensure the user is authenticated
         var user = await _userManager.GetUserAsync(User);
-        if (user == null)
+        if (user == null || string.IsNullOrEmpty(user.Id))
         {
             return Unauthorized();
         }
