@@ -3,6 +3,23 @@
     ViewData["Title"] = "My Media";
 }
 
+<style>
+    .photo-grid img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .photo-grid .card {
+        overflow: hidden;
+    }
+    .photo-grid .card div[style*="height: 200px"] {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4 animate-fade-in">
     <h1>My Gallery</h1>
     <div>

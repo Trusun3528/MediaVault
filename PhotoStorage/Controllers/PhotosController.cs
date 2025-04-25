@@ -17,15 +17,18 @@ public class PhotosController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IWebHostEnvironment _environment;
+    private readonly LMStudioService _lmStudioService;
 
     public PhotosController(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment,
+        LMStudioService lmStudioService)
     {
         _context = context;
         _userManager = userManager;
         _environment = environment;
+        _lmStudioService = lmStudioService;
     }
 
     public async Task<IActionResult> Index()
@@ -111,8 +114,7 @@ public class PhotosController : Controller
             // Generate description using LM Studio if opted in and media is a photo
             if (model.UseAI && !isVideo && !isAudio)
             {
-                var aiService = new LMStudioService(new HttpClient());
-                model.Description = await aiService.GenerateDescriptionAsync(model.Description);
+                model.Description = await _lmStudioService.GenerateDescriptionAsync(model.Description);
             }
             
             // Create photo/audio/video record

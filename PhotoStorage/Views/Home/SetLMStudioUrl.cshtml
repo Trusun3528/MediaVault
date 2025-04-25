@@ -1,0 +1,22 @@
+@model PhotoStorage.ViewModels.SetLMStudioUrlViewModel
+
+@{
+    ViewData["Title"] = "Set LM Studio URL";
+}
+
+<h2>Set LM Studio URL</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<form asp-action="SetLMStudioUrl" method="post">
+    <div class="form-group">
+        <label for="LMStudioUrl">LM Studio URL</label>
+        <input type="text" class="form-control" id="LMStudioUrl" name="LMStudioUrl" value="@Model.LMStudioUrl" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

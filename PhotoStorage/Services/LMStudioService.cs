@@ -2,17 +2,45 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System.Collections.Generic;
 
 namespace PhotoStorage.Services
 {
     public class LMStudioService
     {
         private readonly HttpClient _httpClient;
-        private const string LMStudioBaseUrl = "http://localhost:1234/v1";
+        private readonly IConfiguration _configuration;
+        private const string ConfigFileName = "lmstudio_config.json";
 
-        public LMStudioService(HttpClient httpClient)
+        public LMStudioService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _configuration = configuration;
+        }
+
+        public string GetLMStudioUrl()
+        {
+            var configFilePath = Path.Combine(AppContext.BaseDirectory, ConfigFileName);
+            if (File.Exists(configFilePath))
+            {
+                var json = File.ReadAllText(configFilePath);
+                var jsonObject = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                if (jsonObject != null && jsonObject.TryGetValue("LMStudioUrl", out var url))
+                {
+                    Console.WriteLine($"Using LM Studio URL: {url}"); // Log the URL being used
+                    return url;
+                }
+            }
+            return _configuration["LMStudioUrl"] ?? "http://default-lm-studio-link.com";
+        }
+
+        public void SetLMStudioUrl(string newUrl)
+        {
+            var configFilePath = Path.Combine(AppContext.BaseDirectory, ConfigFileName);
+            var jsonObject = new Dictionary<string, string> { { "LMStudioUrl", newUrl } };
+            File.WriteAllText(configFilePath, JsonSerializer.Serialize(jsonObject, new JsonSerializerOptions { WriteIndented = true }));
         }
 
         public async Task<string[]> AnalyzePhotoAsync(string photoPath)
@@ -25,7 +53,7 @@ namespace PhotoStorage.Services
 
             try
             {
-                var response = await _httpClient.PostAsync($"{LMStudioBaseUrl}/completions", requestContent);
+                var response = await _httpClient.PostAsync($"{GetLMStudioUrl()}/completions", requestContent);
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -66,7 +94,7 @@ namespace PhotoStorage.Services
 
             try
             {
-                var response = await _httpClient.PostAsync($"{LMStudioBaseUrl}/chat/completions", requestContent);
+                var response = await _httpClient.PostAsync($"{GetLMStudioUrl()}/v1/chat/completions", requestContent);
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();

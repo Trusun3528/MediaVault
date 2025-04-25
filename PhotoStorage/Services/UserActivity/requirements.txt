@@ -1,0 +1,7 @@
+# Python dependencies for UserActivity scripts
+flask
+pandas
+numpy
+matplotlib
+requests
+jinja2

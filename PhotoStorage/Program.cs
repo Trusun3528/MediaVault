@@ -66,6 +66,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Register the hosted service
 builder.Services.AddHostedService<PythonScriptScheduler>();
 
+// Register LMStudioService with HttpClient
+builder.Services.AddHttpClient<LMStudioService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

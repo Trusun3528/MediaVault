@@ -3,7 +3,7 @@ namespace PhotoStorage.ViewModels
 {
     public class EditPhotoViewModel
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public required string Title { get; set; }
+        public required string Description { get; set; }
     }
 }
