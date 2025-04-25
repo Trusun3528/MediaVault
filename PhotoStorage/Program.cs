@@ -5,6 +5,8 @@ using PhotoStorage.Models;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Server.IIS;
+using System.Diagnostics; // Add this namespace for running Python scripts
+using PhotoStorage.Services; // Add this namespace
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +63,9 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.Domain = null; // Let the browser determine the domain
 });
 
+// Register the hosted service
+builder.Services.AddHostedService<PythonScriptScheduler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -101,3 +106,39 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+// Example of calling a Python script to log user activity
+// Call Python script to log user activity
+try
+{
+    var pythonProcess = new Process
+    {
+        StartInfo = new ProcessStartInfo
+        {
+            FileName = "python",
+            Arguments = "Services/UserActivity/user_activity_logger.py", // Updated path to the Python script
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        }
+    };
+
+    pythonProcess.Start();
+    string output = pythonProcess.StandardOutput.ReadToEnd();
+    string error = pythonProcess.StandardError.ReadToEnd();
+    pythonProcess.WaitForExit();
+
+    if (!string.IsNullOrEmpty(error))
+    {
+        Console.WriteLine($"Python Error: {error}");
+    }
+    else
+    {
+        Console.WriteLine($"Python Output: {output}");
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Failed to execute Python script: {ex.Message}");
+}
