@@ -65,12 +65,16 @@ public class PhotosController : Controller
             }
             
             // Determine media type
-            MediaType mediaType = MediaType.Image;
+            var mediaType = PhotoStorage.Models.MediaType.Image;
             bool isVideo = model.MediaFile.ContentType.StartsWith("video/");
             var isAudio = model.MediaFile.ContentType.StartsWith("audio/");
             if (isAudio)
             {
-                mediaType = MediaType.Audio;
+                mediaType = PhotoStorage.Models.MediaType.Audio;
+            }
+            if (isVideo)
+            {
+                mediaType = PhotoStorage.Models.MediaType.Video;
             }
             
             // Validate file type
@@ -102,8 +106,6 @@ public class PhotosController : Controller
             string? thumbnailFileName = null;
             if (isVideo)
             {
-                mediaType = MediaType.Video;
-
                 // Generate a thumbnail for the video
                 thumbnailFileName = Guid.NewGuid().ToString() + ".jpg";
                 var thumbnailPath = Path.Combine(userFolder, thumbnailFileName);
@@ -111,10 +113,11 @@ public class PhotosController : Controller
                 GenerateVideoThumbnail(filePath, thumbnailPath);
             }
             
-            // Generate description using LM Studio if opted in and media is a photo
-            if (model.UseAI && !isVideo && !isAudio)
+            // Generate description using LM Studio if opted in
+            if (model.UseAI)
             {
-                model.Description = await _lmStudioService.GenerateDescriptionAsync(model.Description);
+                var serviceMediaType = (PhotoStorage.Services.MediaType)mediaType;
+                model.Description = await _lmStudioService.GenerateDescriptionAsync(model.Description, serviceMediaType);
             }
             
             // Create photo/audio/video record
@@ -405,7 +408,7 @@ public class PhotosController : Controller
     public async Task<IActionResult> VideoGallery()
     {
         var videos = await _context.Photos
-            .Where(p => p.IsPublic && p.MediaType == MediaType.Video)
+            .Where(p => p.IsPublic && p.MediaType == PhotoStorage.Models.MediaType.Video)
             .ToListAsync();
 
         return View(videos);
@@ -425,7 +428,7 @@ public class PhotosController : Controller
     public async Task<IActionResult> WatchVideo(int id)
     {
         var video = await _context.Photos
-            .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == MediaType.Video);
+            .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == PhotoStorage.Models.MediaType.Video);
 
         if (video == null)
         {
@@ -433,7 +436,7 @@ public class PhotosController : Controller
         }
 
         var otherVideos = await _context.Photos
-            .Where(p => p.Id != id && p.IsPublic && p.MediaType == MediaType.Video)
+            .Where(p => p.Id != id && p.IsPublic && p.MediaType == PhotoStorage.Models.MediaType.Video)
             .Take(10)
             .ToListAsync();
 
@@ -452,7 +455,7 @@ public class PhotosController : Controller
 
         // Find all videos without thumbnails
         var videosWithoutThumbnails = await _context.Photos
-            .Where(p => p.MediaType == MediaType.Video && string.IsNullOrEmpty(p.ThumbnailFileName))
+            .Where(p => p.MediaType == PhotoStorage.Models.MediaType.Video && string.IsNullOrEmpty(p.ThumbnailFileName))
             .ToListAsync();
 
         foreach (var video in videosWithoutThumbnails)
@@ -499,16 +502,16 @@ public class PhotosController : Controller
     }
 
     [AllowAnonymous]
-public async Task<IActionResult> ViewPhoto(int id)
-{
-    var photo = await _context.Photos
-        .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == MediaType.Image);
-
-    if (photo == null)
+    public async Task<IActionResult> ViewPhoto(int id)
     {
-        return NotFound();
-    }
+        var photo = await _context.Photos
+            .FirstOrDefaultAsync(p => p.Id == id && p.IsPublic && p.MediaType == PhotoStorage.Models.MediaType.Image);
 
-    return View(photo);
-}
+        if (photo == null)
+        {
+            return NotFound();
+        }
+
+        return View(photo);
+    }
 }

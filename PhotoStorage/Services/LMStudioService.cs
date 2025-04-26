@@ -8,6 +8,13 @@ using System.Collections.Generic;
 
 namespace PhotoStorage.Services
 {
+    public enum MediaType
+    {
+        Image,
+        Video,
+        Audio
+    }
+
     public class LMStudioService
     {
         private readonly HttpClient _httpClient;
@@ -78,19 +85,24 @@ namespace PhotoStorage.Services
             }
         }
 
-        public async Task<string> GenerateDescriptionAsync(string userDescription)
+        public async Task<string> GenerateDescriptionAsync(string userDescription, MediaType mediaType)
         {
+            string mediaTypeDescription = mediaType switch
+            {
+                MediaType.Image => "photo",
+                MediaType.Video => "video",
+                MediaType.Audio => "audio",
+                _ => "media"
+            };
+
             var requestContent = new StringContent(JsonSerializer.Serialize(new
             {
                 messages = new[]
                 {
-                    new { role = "user", content = $"Improve this description: {userDescription}" }
+                    new { role = "user", content = $"Improve this description for a {mediaTypeDescription}: {userDescription}" }
                 },
                 model = "llava-v1.5-7b"
             }), System.Text.Encoding.UTF8, "application/json");
-
-            Console.WriteLine("Request Payload:");
-            Console.WriteLine(await requestContent.ReadAsStringAsync());
 
             try
             {
@@ -98,44 +110,22 @@ namespace PhotoStorage.Services
                 response.EnsureSuccessStatusCode();
 
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("LM Studio Response: " + jsonResponse); // Log the response
-
                 var result = JsonSerializer.Deserialize<JsonElement>(jsonResponse);
                 if (result.TryGetProperty("choices", out var choices) && choices.GetArrayLength() > 0)
                 {
                     var firstChoice = choices[0];
                     if (firstChoice.TryGetProperty("message", out var message) && message.TryGetProperty("content", out var content))
                     {
-                        var improvedDescription = content.GetString();
-
-                        // Ensure the description is meaningful and not just the file path
-                        if (!string.IsNullOrEmpty(improvedDescription) && !improvedDescription.Contains("uploads"))
-                        {
-                            return improvedDescription;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Generated description is invalid or contains the file path.");
-                            return "AI description could not be generated.";
-                        }
+                        return content.GetString() ?? "AI description could not be generated.";
                     }
-                    else
-                    {
-                        Console.WriteLine("'message.content' property not found in the first choice.");
-                        return "AI description could not be generated.";
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("'choices' array not found or empty in the response.");
-                    return "AI description could not be generated.";
                 }
             }
             catch (HttpRequestException ex)
             {
                 Console.WriteLine("Error calling LM Studio API: " + ex.Message);
-                throw;
             }
+
+            return "AI description could not be generated.";
         }
     }
 }
